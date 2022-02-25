@@ -1,0 +1,258 @@
+{
+        admin off
+}
+
+www.allthingsbytes.com allthingsbytes.com {
+        tls /var/lib/caddy/ssl/allthingsbytes.pem /var/lib/caddy/ssl/allthingsbytes-key.pem {
+                protocols tls1.2 tls1.3
+                ciphers TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+                client_auth {
+                        mode require_and_verify
+                        trusted_ca_cert_file /var/lib/caddy/cloudflare-mtls.crt
+                }
+        }
+        redir * https://technerdonline.com{uri}
+}
+
+www.allyourbytearebelongtous.com allyourbytearebelongtous.com {
+        tls /var/lib/caddy/ssl/allyourbytearebelongtous.pem /var/lib/caddy/ssl/allyourbytearebelongtous-key.pem {
+                protocols tls1.2 tls1.3
+                ciphers TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+                client_auth {
+                        mode require_and_verify
+                        trusted_ca_cert_file /var/lib/caddy/cloudflare-mtls.crt
+                }
+        }
+        redir * https://technerdonline.com{uri}
+}
+
+www.technerdonline.net technerdonline.net {
+        tls /var/lib/caddy/ssl/cert-net.pem /var/lib/caddy/ssl/cert-net-key.pem {
+                protocols tls1.2 tls1.3
+                ciphers TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+                client_auth {
+                        mode require_and_verify
+                        trusted_ca_cert_file /var/lib/caddy/cloudflare-mtls.crt
+                }
+        }
+        redir * https://technerdonline.com{uri}
+}
+
+www.technerdonline.com {
+        tls /var/lib/caddy/ssl/cert.pem /var/lib/caddy/ssl/key.pem {
+                protocols tls1.2 tls1.3
+                ciphers TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+                client_auth {
+                        mode require_and_verify
+                        trusted_ca_cert_file /var/lib/caddy/cloudflare-mtls.crt
+                }
+        }
+        @www host www.technerdonline.com
+        redir @www https://technerdonline.com{uri}
+}
+
+technerdonline.com {
+        log {
+                output file /var/log/caddy/access.log {
+                        roll true # Rotate logs, enabled by default
+                        roll_size_mb 5 # Set max size 5 MB
+                        roll_gzip true # Whether to compress rolled files
+                        roll_local_time true # Use localhost time
+                        roll_keep 2 # Keep at most 2 log files
+                        roll_keep_days 7 # Keep log files for 7 days
+                }
+        }
+
+        tls /var/lib/caddy/ssl/cert.pem /var/lib/caddy/ssl/key.pem {
+                protocols tls1.2 tls1.3
+                ciphers TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+                client_auth {
+                        mode require_and_verify
+                        trusted_ca_cert_file /var/lib/caddy/cloudflare-mtls.crt
+                }
+        }
+        @http {
+                protocol http
+        }
+        redir @http https://technerdonline.com{uri} permanent
+
+        @static {
+                file
+                path *.ico *.css *.js *.gif *.jpg *.jpeg *.png *.svg *.woff
+        }
+        header @static {
+                Cache-Control "public, max-age=2592000"
+                defer
+        }
+
+        @notstatic {
+                file
+                not path *.ico *.css *.js *.gif *.jpg *.jpeg *.png *.svg *.woff
+        }
+        header @notstatic {
+                Cache-Control "no-cache, no-store"
+                Pragma "no-cache"
+        }
+
+        header {
+                Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+                X-XSS-Protection "1; mode=block"
+                X-Content-Type-Options "nosniff"
+                X-Frame-Options "SAMEORIGIN"
+                Feature-Policy "accelerometer 'none';ambient-light-sensor 'none'; autoplay 'none';camera 'none';encrypted-media 'none';focus-without-user-activation 'none'; geolocation 'none';gyroscope 'none';magnetometer 'none';microphone 'none';midi 'none';payment 'none';picture-in-picture 'self'; speaker 'none';sync-xhr 'none';usb 'none';vr 'none';"
+                Referrer-Policy "no-referrer"
+                Content-Security-Policy "upgrade-insecure-requests"
+                Expect-CT "max-age=604800"
+                -Server
+        }
+
+        handle {
+                encode zstd gzip
+                root * /usr/share/caddy/public
+                try_files {path} {path}/index.html
+                file_server
+        }
+
+        handle_errors {
+                rewrite * /{http.error.status_code}.html
+                file_server
+        }
+}
+
+git.technerdonline.com {
+        log {
+                output file /var/log/caddy/access.log {
+                        roll true # Rotate logs, enabled by default
+                        roll_size_mb 5 # Set max size 5 MB
+                        roll_gzip true # Whether to compress rolled files
+                        roll_local_time true # Use localhost time
+                        roll_keep 2 # Keep at most 2 log files
+                        roll_keep_days 7 # Keep log files for 7 days
+                }
+        }
+
+        tls /var/lib/caddy/ssl/cert.pem /var/lib/caddy/ssl/key.pem {
+                protocols tls1.2 tls1.3
+                ciphers TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+                client_auth {
+                        mode require_and_verify
+                        trusted_ca_cert_file /var/lib/caddy/cloudflare-mtls.crt
+                }
+        }
+        @http {
+                protocol http
+        }
+        redir @http https://git.technerdonline.com{uri}
+
+        header {
+                Strict-Transport-Security "max-age=31536000; includeSubDomains"
+                X-XSS-Protection "1; mode=block"
+                X-Content-Type-Options "nosniff"
+                X-Frame-Options "SAMEORIGIN"
+                Feature-Policy "accelerometer 'none';ambient-light-sensor 'none'; autoplay 'none';camera 'none';encrypted-media 'none';focus-without-user-activation 'none'; geolocation 'none';gyroscope 'none';magnetometer 'none';microphone 'none';midi 'none';payment 'none';picture-in-picture 'self'; speaker 'none';sync-xhr 'none';usb 'none';vr 'none';"
+                Referrer-Policy "no-referrer"
+                Content-Security-Policy "upgrade-insecure-requests"
+                Expect-CT "max-age=604800"
+                -Server
+        }
+
+        handle {
+                encode zstd gzip
+
+                reverse_proxy localhost:3000 {
+                        header_up Host {host}
+                        #header_up X-Real-IP {CF-Connecting-IP}
+                        #header_up X-Forwarded-For {CF-Connecting-IP}
+                        header_up X-Forwarded-Port {http.request.port}
+                        header_up X-Forwarded-Proto {http.request.scheme}
+                        header_up X-Forwarded-TlsProto {tls_protocol}
+                        header_up X-Forwarded-TlsCipher {tls_cipher}
+                        header_up X-Forwarded-HttpsProto {proto}
+                }
+        }
+}
+
+element.technerdonline.com {
+        log {
+                output file /var/log/caddy/access.log {
+                        roll true # Rotate logs, enabled by default
+                        roll_size_mb 5 # Set max size 5 MB
+                        roll_gzip true # Whether to compress rolled files
+                        roll_local_time true # Use localhost time
+                        roll_keep 2 # Keep at most 2 log files
+                        roll_keep_days 7 # Keep log files for 7 days
+                }
+        }
+
+        tls /var/lib/caddy/ssl/cert.pem /var/lib/caddy/ssl/key.pem {
+                protocols tls1.2 tls1.3
+                ciphers TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256 TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+                client_auth {
+                        mode require_and_verify
+                        trusted_ca_cert_file /var/lib/caddy/cloudflare-mtls.crt
+                }
+        }
+        @http {
+                protocol http
+        }
+        redir @http https://element.technerdonline.com{uri}
+
+        @static {
+                not path /config.*.json
+                not path /i18n
+                not path /home
+                not path /sites
+                not path /index.html
+        }
+        header @static {
+                Cache-Control "public, max-age=2592000"
+                defer
+        }
+
+        @notstatic {
+                path /config.*.json
+                path /i18n
+                path /home
+                path /sites
+                path /index.html
+        }
+        header @notstatic {
+                Cache-Control "no-cache, no-store"
+                X-Robots-Tag "noindex, noarchive, nofollow"
+                Pragma "no-cache"
+        }
+
+        @blocked {
+                path /media/customer/* /media/downloadable/* /media/import/* /media/custom_options/* /errors/*
+        }
+        respond @blocked 403
+
+        @notfound {
+                path_regexp reg_notfound \/\..*$|\/errors\/.*\.xml$|theme_customization\/.*\.xml
+        }
+        respond @notfound 404
+
+        header {
+                Strict-Transport-Security "max-age=31536000; includeSubDomains"
+                X-XSS-Protection "1; mode=block"
+                X-Content-Type-Options "nosniff"
+                X-Frame-Options "SAMEORIGIN"
+                Feature-Policy "accelerometer 'none';ambient-light-sensor 'none'; autoplay 'none';camera 'self';encrypted-media 'self';focus-without-user-activation 'none'; geolocation 'none';gyroscope 'none';magnetometer 'none';microphone 'self';midi 'none';payment 'none';picture-in-picture 'self'; speaker 'self';sync-xhr 'none';usb 'none';vr 'none';"
+                Referrer-Policy "no-referrer"
+                Content-Security-Policy "upgrade-insecure-requests"
+                Expect-CT "max-age=604800"
+                -Server
+        }
+
+        handle {
+                encode zstd gzip
+                root * /usr/share/caddy/element
+                try_files {path} {path}/index.html
+                file_server
+        }
+
+        handle_errors {
+                rewrite * /{http.error.status_code}.html
+                file_server
+        }
+}
